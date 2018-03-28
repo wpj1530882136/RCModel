@@ -247,6 +247,7 @@ class RCModel(object):
         total_num, total_loss = 0, 0
         log_every_n_batch, n_batch_loss = 50, 0
         for bitx, batch in enumerate(train_batches, 1):
+            #self.check(batch)
             feed_dict = {self.p: batch['passage_token_ids'],
                          self.q: batch['question_token_ids'],
                          self.p_char: batch['passage_char_ids'],
@@ -452,3 +453,35 @@ class RCModel(object):
             cnn_emb = tf.reshape(cnn_emb, [batch_size,seqlen, self.char_vocab.embed_dim])
             cnn_emb_dropout = tf.nn.dropout(cnn_emb, self.dropout_keep_prob)
         return cnn_emb_dropout
+
+    def check(self, batch):
+        self.logger.info('------------question_token-------------------')
+        q_tokens = batch['question_token_ids']
+        for i in range(len(q_tokens)):
+            lst = self.term_vocab.recover_from_ids(q_tokens[i])
+            for k in range(len(lst)):
+                self.logger.info(lst[k])
+
+        self.logger.info('------------passage_token-------------------')
+        p_tokens = batch['passage_token_ids']
+        for i in range(len(p_tokens)):
+            lst = self.term_vocab.recover_from_ids(p_tokens[i])
+            for k in range(len(lst)):
+                self.logger.info(lst[k])
+        
+        self.logger.info('------------question_char-------------------')
+        q_chars = batch['question_char_ids'].tolist()
+        print(q_chars)
+        for i in range(len(q_chars)):
+            for j in range(len(q_chars[i])):
+                lst = self.char_vocab.recover_from_ids(q_chars[i][j])
+                for k in range(len(lst)):
+                    self.logger.info(lst[k])
+
+        self.logger.info('------------passage_char-------------------')
+        p_chars = batch['passage_char_ids'].tolist()
+        for i in range(len(p_chars)):
+            for j in range(len(p_chars[i])):
+                lst = self.char_vocab.recover_from_ids(p_chars[i][j])
+                for k in range(len(lst)):
+                    self.logger.info(lst[k])
