@@ -137,7 +137,7 @@ class RCModel(object):
         self.q_char_emb = self.cnn_emb(self.q_char_emb, "q_char")
 
         self.q_emb = tf.concat([self.q_word_emb, self.q_char_emb], -1)
-        self.p_emb = tf.concat([self.p_word_emb, self.p_word_emb], -1)
+        self.p_emb = tf.concat([self.p_word_emb, self.p_char_emb], -1)
 
 
     def _encode(self):
