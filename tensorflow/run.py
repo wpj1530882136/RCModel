@@ -65,7 +65,7 @@ def parse_args():
     model_settings = parser.add_argument_group('model settings')
     model_settings.add_argument('--algo', choices=['BIDAF', 'MLSTM'], default='BIDAF',
                                 help='choose the algorithm to use')
-    model_settings.add_argument('--embed_size', type=int, default=128,
+    model_settings.add_argument('--embed_size', type=int, default=256,
                                 help='size of the embeddings')
     model_settings.add_argument('--hidden_size', type=int, default=150,
                                 help='size of LSTM hidden units')
@@ -157,11 +157,6 @@ def prepare(args):
         pickle.dump(char_vocab, fout)
 
     logger.info('Done with preparing!')
-
-    brc_data = BRCDataset(args.max_p_num, args.max_p_len, args.max_q_len,
-                          args.train_files, args.dev_files)
-    logger.info('Converting text into ids...')
-    brc_data.convert_to_ids(word_vocab,char_vocab)
 
 
 def train(args):
