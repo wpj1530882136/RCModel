@@ -188,18 +188,20 @@ def evaluate(args):
     """
     logger = logging.getLogger("brc")
     logger.info('Load data_set and vocab...')
-    with open(os.path.join(args.vocab_dir, 'vocab.data'), 'rb') as fin:
-        vocab = pickle.load(fin)
+    with open(os.path.join(args.vocab_dir, 'word_vocab.data'), 'rb') as fin:
+        word_vocab = pickle.load(fin)
+    with open(os.path.join(args.vocab_dir, 'char_vocab.data'), 'rb') as fin:
+        char_vocab = pickle.load(fin)
     assert len(args.dev_files) > 0, 'No dev files are provided.'
     brc_data = BRCDataset(args.max_p_num, args.max_p_len, args.max_q_len, dev_files=args.dev_files)
     logger.info('Converting text into ids...')
-    brc_data.convert_to_ids(vocab)
+    brc_data.convert_to_ids(word_vocab,char_vocab)
     logger.info('Restoring the model...')
-    rc_model = RCModel(vocab, args)
+    rc_model = RCModel(word_vocab, char_vocab, args)
     rc_model.restore(model_dir=args.model_dir, model_prefix=args.algo)
     logger.info('Evaluating the model on dev set...')
     dev_batches = brc_data.gen_mini_batches('dev', args.batch_size,
-                                            pad_id=vocab.get_id(vocab.pad_token), shuffle=False)
+                                            pad_id=word_vocab.get_id(word_vocab.pad_token), shuffle=False)
     dev_loss, dev_bleu_rouge = rc_model.evaluate(
         dev_batches, result_dir=args.result_dir, result_prefix='dev.predicted')
     logger.info('Loss on dev set: {}'.format(dev_loss))
@@ -213,19 +215,21 @@ def predict(args):
     """
     logger = logging.getLogger("brc")
     logger.info('Load data_set and vocab...')
-    with open(os.path.join(args.vocab_dir, 'vocab.data'), 'rb') as fin:
-        vocab = pickle.load(fin)
+    with open(os.path.join(args.vocab_dir, 'word_vocab.data'), 'rb') as fin:
+        word_vocab = pickle.load(fin)
+    with open(os.path.join(args.vocab_dir, 'char_vocab.data'), 'rb') as fin:
+        char_vocab = pickle.load(fin)
     assert len(args.test_files) > 0, 'No test files are provided.'
     brc_data = BRCDataset(args.max_p_num, args.max_p_len, args.max_q_len,
                           test_files=args.test_files)
     logger.info('Converting text into ids...')
-    brc_data.convert_to_ids(vocab)
+    brc_data.convert_to_ids(word_vocab,char_vocab)
     logger.info('Restoring the model...')
-    rc_model = RCModel(vocab, args)
+    rc_model = RCModel(word_vocab, char_vocab, args)
     rc_model.restore(model_dir=args.model_dir, model_prefix=args.algo)
     logger.info('Predicting answers for test set...')
     test_batches = brc_data.gen_mini_batches('test', args.batch_size,
-                                             pad_id=vocab.get_id(vocab.pad_token), shuffle=False)
+                                             pad_id=word_vocab.get_id(word_vocab.pad_token), shuffle=False)
     rc_model.evaluate(test_batches,
                       result_dir=args.result_dir, result_prefix='test.predicted')
 
